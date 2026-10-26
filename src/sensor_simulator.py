@@ -3,7 +3,7 @@ from pathlib import Path
 import json
 import time
 import paho.mqtt.client as mqtt
-
+from threading import Event
 
 def generate_message():
 
@@ -49,7 +49,7 @@ client_sensor = mqtt.Client(
 )
 
 
-def start_simulation(messages):
+def start_simulation(messages,stop_event):
     try:
         client_sensor.connect(HOST, PORT, keepalive=60)
         client_sensor.loop_start()
@@ -65,6 +65,8 @@ def start_simulation(messages):
         print("Connection to Mosquitto succeded")
 
         for i in range(0, len(messages), 2):
+            if stop_event.is_set():
+                break
             #We use an increment of 2 because we want to display temperature and humidity for one event_time at the same moment
         
             for payload in messages[i:i + 2]:
@@ -86,7 +88,7 @@ def start_simulation(messages):
 
                 print("Publication confirmed:", payload)
 
-            time.sleep(1)
+            stop_event.wait(1)
 
     except KeyboardInterrupt:
         print("End of simulation")
@@ -96,5 +98,7 @@ def start_simulation(messages):
         client_sensor.loop_stop()
 
 if __name__ == "__main__":
+    stop_event = Event()
     messages = generate_message()
-    start_simulation(messages)
+    start_simulation(messages,©stop_event)
+    
