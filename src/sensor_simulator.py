@@ -39,11 +39,17 @@ for index, raw_data in df.head(5).iterrows():
 ## We're creating a client to publish to the Mosquitto broker
 HOST = "127.0.0.1" #local IP
 PORT = 1883 #usual port without encryption
+QOS = 1 #I am seeting the Quality of Service to 1 in order to receive an acknowledgment from the broker for each publication. 
+        #Any potential duplicates are handled by stable identifiers and duplicate-free storage. 
+        # QoS set to 0 would not provide this confirmation; 
+        # QoS set to 2 would add extra message exchanges without addressing any additional need identified rn.
+   
 
 client_sensor = mqtt.Client(
     callback_api_version=mqtt.CallbackAPIVersion.VERSION2,
     protocol=mqtt.MQTTv311,
 )
+
 try:
     client_sensor.connect(HOST, PORT, keepalive=60)
     client_sensor.loop_start()
@@ -57,7 +63,30 @@ try:
         time.sleep(0.05)
 
     print("Connection to Mosquitto succeded")
+
+    for i in range(0, len(messages), 2):
+        #We use an increment of 2 because we want to display temperature and humidity for one event_time at the same moment
     
+        for payload in messages[i:i + 2]:
+            info = client_sensor.publish(
+                topic="sensors/kitchen",
+                payload=payload,
+                qos=1,
+                retain=False,
+            )
+
+            if info.rc != mqtt.MQTT_ERR_SUCCESS:
+                #We chose to compare with MQTT.MQTT_ERR_SUCCESS (=0) for readability reasons.
+                raise RuntimeError(f"Publication Request Rejected : {info.rc}")
+            
+            info.wait_for_publish(timeout=5)
+
+            if not info.is_published():
+                raise TimeoutError("No confirmation from the broker.")
+
+        time.sleep(1)
+
+        
 finally:
     client_sensor.disconnect()
     client_sensor.loop_stop()
