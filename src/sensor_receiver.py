@@ -16,8 +16,22 @@ def on_message(client,userdata,message):
     text = message.payload.decode("utf-8")
     data = json.loads(text)
 
+    valid_data,error = validate_message(data)
+
+    if error is not None:
+        print("Message rejected:", error)
+        return
+
     print("Message received:")
-    print(data)
+    print(valid_data)
+
+
+def validate_message(data):
+    set_sensor = {"event_id","sensor_id","event_time","value","unit"}
+    if set(data).issubset(set_sensor):
+        return data, None
+    else:
+        return None, "missing_field(s)"
 
 def on_subscribe(client, userdata, mid, reason_codes, properties):
     if reason_codes and all(not code.is_failure for code in reason_codes):
