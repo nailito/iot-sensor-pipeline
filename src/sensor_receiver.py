@@ -5,9 +5,12 @@ import time
 import paho.mqtt.client as mqtt
 from datetime import datetime, timezone
 import math
+from storage import init_database,save_measurement
 
 HOST = "127.0.0.1" #local IP
 PORT = 1883 #usual port without encryption
+
+init_database()
 
 client_receiver = mqtt.Client(
     callback_api_version=mqtt.CallbackAPIVersion.VERSION2,
@@ -33,16 +36,15 @@ def on_message(client, userdata, message):
         return
 
     valid_data, error = validate_message(data)
-    valid_date_timestamped = valid_data.copy()
-    valid_date_timestamped["received_at"] = time_now
 
     if error is not None:
         print("Message rejected:", error)
         return
 
+    valid_date_timestamped = valid_data.copy()
+    valid_date_timestamped["received_at"] = time_now
     print(f"Message received at : {valid_date_timestamped['received_at']}")
-    print(valid_date_timestamped)
-
+    save_measurement(valid_date_timestamped)
 
 def validate_message(data):
     set_sensor = {"event_id","sensor_id","event_time","value","unit"}
@@ -85,6 +87,7 @@ def on_subscribe(client, userdata, mid, reason_codes, properties):
         print("Subscription confirmed.")
     else:
         print("Subscription refused:", reason_codes)
+
 
 client_receiver.on_message = on_message
 client_receiver.connect(HOST, PORT, keepalive=60)

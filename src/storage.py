@@ -5,23 +5,24 @@ import sqlite3
 project_dir = Path(__file__).resolve().parent.parent
 db = project_dir / "data" / "measurements.sqlite"
 
-con = sqlite3.connect(db)
-con.row_factory = sqlite3.Row
 
-
-con.execute(
-    """
-    CREATE TABLE IF NOT EXISTS mesures (
-    event_id TEXT primary key not null,
-    sensor_id TEXT NOT NULL,
-    event_time TEXT NOT NULL,
-    value REAL NOT NULL,
-    unit TEXT NOT NULL,
-    received_at TEXT NOT NULL
-    )
-    """
-            )
-con.commit()
+def init_database():
+    con = sqlite3.connect(db)
+    con.row_factory = sqlite3.Row
+    con.execute(
+        """
+        CREATE TABLE IF NOT EXISTS mesures (
+        event_id TEXT primary key not null,
+        sensor_id TEXT NOT NULL,
+        event_time TEXT NOT NULL,
+        value REAL NOT NULL,
+        unit TEXT NOT NULL,
+        received_at TEXT NOT NULL
+        )
+        """
+                )
+    con.commit()
+    con.close()
 
 def save_measurement(data):
     con = sqlite3.connect(db)
@@ -58,13 +59,17 @@ def save_measurement(data):
     finally:
         con.close()
 
-test_measurement = {
-    "event_id": "Sensor_1:temperature:2016-01-11 17:00:00",
-    "sensor_id": "Sensor_1",
-    "event_time": "2016-01-11 17:00:00",
-    "value": 19.89,
-    "unit": "°C",
-    "received_at": "2026-10-27T10:00:00+00:00",
-} #for testing purpose
 
-save_measurement(test_measurement)
+
+if __name__ == "__main__":
+
+    test_measurement = {
+        "event_id": "Sensor_1:temperature:2016-01-11 17:00:00",
+        "sensor_id": "Sensor_1",
+        "event_time": "2016-01-11 17:00:00",
+        "value": 19.89,
+        "unit": "°C",
+        "received_at": "2026-10-27T10:00:00+00:00",
+    } #for testing purpose
+
+    save_measurement(test_measurement)
