@@ -15,10 +15,11 @@ client_receiver = mqtt.Client(
 )
 
 def on_message(client, userdata, message):
+    time_now = datetime.now(timezone.utc).isoformat()
     try:
         text = message.payload.decode("utf-8")
         data = json.loads(text)
-
+        
     except UnicodeDecodeError:
         print("Message rejected: invalid UTF-8 encoding")
         return
@@ -32,13 +33,15 @@ def on_message(client, userdata, message):
         return
 
     valid_data, error = validate_message(data)
+    valid_date_timestamped = valid_data.copy()
+    valid_date_timestamped["received_at"] = time_now
 
     if error is not None:
         print("Message rejected:", error)
         return
 
-    print("Message received:")
-    print(valid_data)
+    print(f"Message received at : {valid_date_timestamped['received_at']}")
+    print(valid_date_timestamped)
 
 
 def validate_message(data):
@@ -66,13 +69,13 @@ def validate_message(data):
     if data["unit"] == "%" and not 0 <= value <= 100:
         return None, "humidite_value_missmatch"
     
-    unit = "temperature" if data["unit"] == "°C" else "humidity"
-    expected_event_id = (f"{data['sensor_id']}:{unit}:{data['event_time']}")
+    measurement_type = "temperature" if data["unit"] == "°C" else "humidity"
+    expected_event_id = (f"{data['sensor_id']}:{measurement_type}:{data['event_time']}")
     if data["event_id"] != expected_event_id:
         return None, "wrong_event_id"
     
     else:
-        print("message valide")
+        #print("message valide")
         return data, None
 
 
