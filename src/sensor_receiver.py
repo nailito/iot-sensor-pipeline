@@ -14,11 +14,24 @@ client_receiver = mqtt.Client(
     protocol=mqtt.MQTTv311,
 )
 
-def on_message(client,userdata,message):
-    text = message.payload.decode("utf-8")
-    data = json.loads(text)
+def on_message(client, userdata, message):
+    try:
+        text = message.payload.decode("utf-8")
+        data = json.loads(text)
 
-    valid_data,error = validate_message(data)
+    except UnicodeDecodeError:
+        print("Message rejected: invalid UTF-8 encoding")
+        return
+
+    except json.JSONDecodeError:
+        print("Message rejected: invalid JSON")
+        return
+
+    if not isinstance(data, dict):
+        print("Message rejected: expected a JSON object")
+        return
+
+    valid_data, error = validate_message(data)
 
     if error is not None:
         print("Message rejected:", error)
