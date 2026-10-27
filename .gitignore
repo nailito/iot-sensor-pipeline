@@ -221,3 +221,6 @@ __marimo__/
 
 # Notebook de brouillon personnel
 /notebooks/brouillon.ipynb
+
+# Fiche locale de démarrage MQTT
+/notebooks/demarrage-mqtt.md

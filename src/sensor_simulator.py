@@ -100,5 +100,5 @@ def start_simulation(messages,stop_event):
 if __name__ == "__main__":
     stop_event = Event()
     messages = generate_message()
-    start_simulation(messages,©stop_event)
+    start_simulation(messages,stop_event)
     
