@@ -30,7 +30,7 @@ def on_message(client,userdata,message):
 
 def validate_message(data):
     set_sensor = {"event_id","sensor_id","event_time","value","unit"}
-    if not set(data).issubset(set_sensor):
+    if not set_sensor.issubset(data):
         return None, "missing_field(s)"
 
     if data["sensor_id"] != "Sensor_1":
@@ -52,9 +52,17 @@ def validate_message(data):
     
     if data["unit"] == "%" and not 0 <= value <= 100:
         return None, "humidite_value_missmatch"
+    
+    unit = "temp" if data["unit"] == "°C" else "humidity"
+    expected_event_id = (f"{data['sensor_id']}:{unit}:{data['event_time']}")
+    if data["event_id"] != expected_event_id:
+        return None, "wrong_event_id"
+    
     else:
         print("message valide")
         return data, None
+
+
     
 def on_subscribe(client, userdata, mid, reason_codes, properties):
     if reason_codes and all(not code.is_failure for code in reason_codes):
