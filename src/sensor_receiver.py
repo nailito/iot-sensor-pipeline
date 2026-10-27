@@ -3,6 +3,8 @@ from pathlib import Path
 import json
 import time
 import paho.mqtt.client as mqtt
+from datetime import datetime, timezone
+import math
 
 HOST = "127.0.0.1" #local IP
 PORT = 1883 #usual port without encryption
@@ -28,11 +30,32 @@ def on_message(client,userdata,message):
 
 def validate_message(data):
     set_sensor = {"event_id","sensor_id","event_time","value","unit"}
-    if set(data).issubset(set_sensor):
-        return data, None
-    else:
+    if not set(data).issubset(set_sensor):
         return None, "missing_field(s)"
 
+    if data["sensor_id"] != "Sensor_1":
+        return None, "unexpected_sensor"
+    
+    try:
+        date = datetime.strptime(data["event_time"], "%Y-%m-%d %H:%M:%S")
+        if date.strftime("%Y-%m-%d %H:%M:%S") != data["event_time"]:
+            return None, "date_format_missmatch"
+    except (TypeError, ValueError):
+        return None, "date_format_missmatch"
+    
+    value = data["value"]
+    if type(value) not in (int, float) or not math.isfinite(value):
+        return None, "value_missmatch"
+    
+    if data["unit"] not in ("°C", "%"):
+        return None, "unite_missmatch"
+    
+    if data["unit"] == "%" and not 0 <= value <= 100:
+        return None, "humidite_value_missmatch"
+    else:
+        print("message valide")
+        return data, None
+    
 def on_subscribe(client, userdata, mid, reason_codes, properties):
     if reason_codes and all(not code.is_failure for code in reason_codes):
         print("Subscription confirmed.")
