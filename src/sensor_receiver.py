@@ -12,6 +12,15 @@ client_receiver = mqtt.Client(
     protocol=mqtt.MQTTv311,
 )
 
+def on_message(client,userdata,message):
+    text = message.payload.decode("utf-8")
+    data = json.loads(text)
+
+    print("Message received:")
+    print(data)
+
+
+client_receiver.on_message = on_message
 client_receiver.connect(HOST, PORT, keepalive=60)
 client_receiver.loop_start()
 limit = time.monotonic() + 5
@@ -21,5 +30,11 @@ while not client_receiver.is_connected():
     time.sleep(0.05)
 print("Connection to Mosquitto succeded")
 
- 
-    
+client_receiver.subscribe("sensors/kitchen", qos=1)
+
+try:
+    while True:
+        time.sleep(1)
+finally:
+    client_receiver.disconnect()
+    client_receiver.loop_stop()
