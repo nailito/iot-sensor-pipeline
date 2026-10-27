@@ -19,6 +19,11 @@ def on_message(client,userdata,message):
     print("Message received:")
     print(data)
 
+def on_subscribe(client, userdata, mid, reason_codes, properties):
+    if reason_codes and all(not code.is_failure for code in reason_codes):
+        print("Subscription confirmed.")
+    else:
+        print("Subscription refused:", reason_codes)
 
 client_receiver.on_message = on_message
 client_receiver.connect(HOST, PORT, keepalive=60)
@@ -30,6 +35,7 @@ while not client_receiver.is_connected():
     time.sleep(0.05)
 print("Connection to Mosquitto succeded")
 
+client_receiver.on_subscribe = on_subscribe
 client_receiver.subscribe("sensors/kitchen", qos=1)
 
 try:
