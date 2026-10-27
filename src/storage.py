@@ -24,6 +24,8 @@ con.execute(
 con.commit()
 
 def save_measurement(data):
+    con = sqlite3.connect(db)
+    con.row_factory = sqlite3.Row
     try:
         cur = con.execute(
             """
@@ -52,6 +54,9 @@ def save_measurement(data):
         con.rollback()
         #if we have 
         return(None, "storage")
+
+    finally:
+        con.close()
 
 test_measurement = {
     "event_id": "Sensor_1:temperature:2016-01-11 17:00:00",
