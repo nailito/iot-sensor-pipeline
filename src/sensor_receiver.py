@@ -66,7 +66,7 @@ def validate_message(data):
     if data["unit"] == "%" and not 0 <= value <= 100:
         return None, "humidite_value_missmatch"
     
-    unit = "temp" if data["unit"] == "°C" else "humidity"
+    unit = "temperature" if data["unit"] == "°C" else "humidity"
     expected_event_id = (f"{data['sensor_id']}:{unit}:{data['event_time']}")
     if data["event_id"] != expected_event_id:
         return None, "wrong_event_id"
