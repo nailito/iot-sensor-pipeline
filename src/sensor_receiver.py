@@ -74,10 +74,6 @@ def on_message(client, userdata, message):
         bilan["duplicate_messages"] += 1
     elif status == "conflict":
         bilan["conflit_messages"] += 1
-    
-    #print(f"Message saved: {status}")
-    bilan['saved_messages'] +=1
-
     subprocess.run(["clear"])
 
     print(f"{bilan['received_messages']} Messages received")

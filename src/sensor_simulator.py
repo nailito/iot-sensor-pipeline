@@ -89,7 +89,7 @@ def start_simulation(messages,stop_event):
 
                 print("Publication confirmed:", payload)
 
-            stop_event.wait(0.001)
+            stop_event.wait(0.0001)
 
     except KeyboardInterrupt:
         print("End of simulation")
