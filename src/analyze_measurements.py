@@ -30,11 +30,30 @@ print(f"Humidity min : {h_min['value']} (at {h_min['event_time']}) | Humidity ma
 print(f"Temperature min : {t_min['value']} (at {t_min['event_time']}) | Temperature max : {t_max['value']} (at {t_max['event_time']}) | Temperature mean : {temperature['value'].mean()}")
 
 
-fig, axes = plt.subplots(2, 1, figsize=(10, 6), sharex=True)
-axes[0].plot(temperature['event_time'], temperature['value'])
-axes[0].set_ylabel("Temperature (°C)")
-axes[1].plot(humidity['event_time'], humidity['value'])
-axes[1].set_ylabel("Humidity (%)")
+fig, axes = plt.subplots(2, 1, figsize=(12, 7), sharex=True)
 
-plt.tight_layout()   
+axes[0].plot(
+    temperature["event_time"],
+    temperature["value"],
+    color="coral",
+    linewidth=1
+)
+axes[0].set_title("Temperature over time")
+axes[0].set_ylabel("Temperature (°C)")
+axes[0].grid(alpha=0.2)
+
+axes[1].plot(
+    humidity["event_time"],
+    humidity["value"],
+    color="deepskyblue",
+    linewidth=1
+)
+axes[1].set_title("Relative humidity over time")
+axes[1].set_ylabel("Humidity (%)")
+axes[1].set_xlabel("Date")
+axes[1].grid(alpha=0.2)
+
+fig.suptitle("Kitchen sensor measurements", fontsize=15)
+fig.autofmt_xdate()
+plt.tight_layout()
 plt.show()
