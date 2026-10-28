@@ -52,3 +52,7 @@ if not info.is_published():
     raise TimeoutError("No confirmation from the broker.")
 
 print("Publication confirmed:", humidity_payload)
+
+
+client_test.disconnect()
+client_test.loop_stop()
