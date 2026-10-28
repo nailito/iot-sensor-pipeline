@@ -6,6 +6,7 @@ import paho.mqtt.client as mqtt
 from datetime import datetime, timezone
 import math
 from storage import init_database,save_measurement
+import subprocess
 
 HOST = "127.0.0.1" #local IP
 PORT = 1883 #usual port without encryption
@@ -74,12 +75,15 @@ def on_message(client, userdata, message):
     #print(f"Message saved: {status}")
     bilan['saved_messages'] +=1
 
+    subprocess.run(["clear"])
+
     print(f"{bilan['received_messages']} Messages received")
     print(f"{bilan['saved_messages']} Messages saved")
     print(f"{bilan['rejeted_messages']} Messages rejected")
     print(f"{bilan['duplicate_messages']} Messages tagged as duplicate")
     print(f"{bilan['conflit_messages']} Messages tagged as conflictual")
 
+    
 
 def validate_message(data):
     set_sensor = {"event_id","sensor_id","event_time","value","unit"}
