@@ -35,10 +35,74 @@ and displays the evolution of temperature and humidity over time.
 
 ## Data source
 
+The project uses the **Appliances Energy Prediction** dataset from the
+UCI Machine Learning Repository. The dataset contains historical measurements
+from a house, including kitchen temperature and relative humidity aggregated
+at 10-minute intervals.
+
+Source: Candanedo, L. (2017), Appliances Energy Prediction,
+<https://doi.org/10.24432/C5VC8G>
+
 ## Technologies
+
+- Python
+- MQTT and Mosquitto
+- SQLite
+- Pandas
+- Matplotlib
+- Docker Compose
 
 ## How to run
 
+Create a virtual environment and install the dependencies:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+```
+
+Start the MQTT broker:
+
+```bash
+docker compose up -d
+```
+
+In separate terminals, activate the virtual environment and run:
+
+```bash
+python src/sensor_receiver.py
+```
+
+Wait for the subscription confirmation, then start the live chart:
+
+```bash
+python src/live_plot.py
+```
+
+Finally, start the simulator:
+
+```bash
+python src/sensor_simulator.py
+```
+
+To stop the simulation and receiver, use `Ctrl+C` in their terminals. Close the
+chart window and stop the broker with:
+
+```bash
+docker compose down
+```
+
 ## Validation and tests
 
+The receiver checks the structure and contents of incoming messages.
+Manual tests cover:
+
+- Invalid humidity values and malformed JSON
+- Duplicate measurements
+- Conflicting measurements with the same event ID
+
 ## Limitations
+
+This is a local educational project based on historical residential data.
+The visualization displays historical measurement times as the data is replayed.
