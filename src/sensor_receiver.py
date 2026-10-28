@@ -17,41 +17,69 @@ client_receiver = mqtt.Client(
     protocol=mqtt.MQTTv311,
 )
 
+bilan = {
+    "received_messages": 0,
+    "saved_messages": 0,
+    "rejeted_messages": 0,
+    "duplicate_messages": 0,
+    "conflit_messages": 0
+}
+
+
 def on_message(client, userdata, message):
     time_now = datetime.now(timezone.utc).isoformat()
+    bilan["received_messages"] += 1
+
     try:
         text = message.payload.decode("utf-8")
         data = json.loads(text)
         
     except UnicodeDecodeError:
         print("Message rejected: invalid UTF-8 encoding")
+        bilan["rejeted_messages"] += 1
         return
 
     except json.JSONDecodeError:
         print("Message rejected: invalid JSON")
+        bilan["rejeted_messages"] += 1
         return
 
     if not isinstance(data, dict):
         print("Message rejected: expected a JSON object")
+        bilan["rejeted_messages"] += 1
         return
 
     valid_data, error = validate_message(data)
 
     if error is not None:
         print("Message rejected:", error)
+        bilan["rejeted_messages"] += 1
         return
 
     valid_date_timestamped = valid_data.copy()
     valid_date_timestamped["received_at"] = time_now
-    print(f"Message received at : {valid_date_timestamped['received_at']}")
-    
+    #print(f"Message received at : {valid_date_timestamped['received_at']}")
+
+
     status, error_save = save_measurement(valid_date_timestamped)
     
     if error_save is not None:
         print("Couldn't save the message:", error_save)
+        if error_save == 'conflict':
+            bilan["conflit_messages"] += 1
+        if error_save == 'duplicate':
+            bilan['duplicate_messages'] += 1
         return
+    
+    #print(f"Message saved: {status}")
+    bilan['saved_messages'] +=1
 
-    print(f"Message saved: {status}")
+    print(f"{bilan['received_messages']} Messages received")
+    print(f"{bilan['saved_messages']} Messages saved")
+    print(f"{bilan['rejeted_messages']} Messages rejected")
+    print(f"{bilan['duplicate_messages']} Messages tagged as duplicate")
+    print(f"{bilan['conflit_messages']} Messages tagged as conflictual")
+
 
 def validate_message(data):
     set_sensor = {"event_id","sensor_id","event_time","value","unit"}
@@ -84,7 +112,6 @@ def validate_message(data):
         return None, "wrong_event_id"
     
     else:
-        #print("message valide")
         return data, None
 
 
