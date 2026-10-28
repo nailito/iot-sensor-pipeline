@@ -34,10 +34,11 @@ humidity_wrong = {
 }
 
 humidity_payload = json.dumps(humidity_wrong)
+bad_json_payload = '{"sensor_id": "Sensor_1"'
 
 info = client_test.publish(
     topic="sensors/kitchen",
-    payload=humidity_payload,
+    payload=bad_json_payload,
     qos=QOS,
     retain=False,
 )
