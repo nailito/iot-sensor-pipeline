@@ -1,2 +1,3 @@
-# iot-sensor-pipeline
-I am building a system that simulates temperature and humidity sensors, transmits their readings via MQTT, stores them, and visualizes their trends over time.
+pandas==3.0.6
+matplotlib==3.11.2
+paho-mqtt==2.1.0
