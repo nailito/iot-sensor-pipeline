@@ -8,7 +8,8 @@ from threading import Event
 def generate_message():
 
     project_dir = Path(__file__).resolve().parent.parent
-    file = project_dir / "data" / "energydata_complete.csv"
+    #file = project_dir / "data" / "energydata_complete.csv"
+    file = project_dir / "data" / "energydata_robustesse.csv"
 
     df_raw = pd.read_csv(file)
 
@@ -88,7 +89,7 @@ def start_simulation(messages,stop_event):
 
                 print("Publication confirmed:", payload)
 
-            stop_event.wait(1)
+            stop_event.wait(0.001)
 
     except KeyboardInterrupt:
         print("End of simulation")

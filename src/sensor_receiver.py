@@ -66,11 +66,14 @@ def on_message(client, userdata, message):
     
     if error_save is not None:
         print("Couldn't save the message:", error_save)
-        if error_save == 'conflict':
-            bilan["conflit_messages"] += 1
-        if error_save == 'duplicate':
-            bilan['duplicate_messages'] += 1
         return
+
+    if status == "entered":
+        bilan["saved_messages"] += 1
+    elif status == "duplicate":
+        bilan["duplicate_messages"] += 1
+    elif status == "conflict":
+        bilan["conflit_messages"] += 1
     
     #print(f"Message saved: {status}")
     bilan['saved_messages'] +=1
