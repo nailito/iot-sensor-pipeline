@@ -44,7 +44,14 @@ def on_message(client, userdata, message):
     valid_date_timestamped = valid_data.copy()
     valid_date_timestamped["received_at"] = time_now
     print(f"Message received at : {valid_date_timestamped['received_at']}")
-    save_measurement(valid_date_timestamped)
+    
+    status, error_save = save_measurement(valid_date_timestamped)
+    
+    if error_save is not None:
+        print("Couldn't save the message:", error_save)
+        return
+
+    print(f"Message saved: {status}")
 
 def validate_message(data):
     set_sensor = {"event_id","sensor_id","event_time","value","unit"}
